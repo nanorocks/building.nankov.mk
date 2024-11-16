@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Base\Controller;
-use App\Http\Resources\AllResourse;
-use App\Http\Resources\CreateResource;
-use App\Http\Resources\DeleteResource;
-use App\Http\Resources\SingleResource;
-use App\Http\Resources\UpdateResource;
+use App\Http\Resources\Apartment\AllResourse;
+use App\Http\Resources\Apartment\CreateResource;
+use App\Http\Resources\Apartment\DeleteResource;
+use App\Http\Resources\Apartment\SingleResource;
+use App\Http\Resources\Apartment\UpdateResource;
 use App\Services\Interfaces\IActionHistoryService;
 
 class ActionHistoryController extends Controller
