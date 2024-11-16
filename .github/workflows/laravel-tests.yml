@@ -29,7 +29,7 @@ jobs:
             echo "DB_DATABASE=$(pwd)/database/database.sqlite" >> .env
           fi
 
-      # Step 3: Set up PHP and required extensions
+      # Step 3: Set up PHP and Composer (Ensure Composer 2.x is used)
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -37,20 +37,32 @@ jobs:
           extensions: mbstring, pdo, pdo_mysql, pdo_sqlite, bcmath, fileinfo, openssl
           tools: composer
 
-      # Step 4: Skip Composer cache if it's slowing down
-      # - name: Cache Composer Dependencies
-      #   id: composer-cache
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ./bca/vendor
-      #     key: ${{ runner.os }}-php-${{ hashFiles('./bca/composer.lock') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-php-
+      # Ensure Composer 2.x is used
+      - name: Ensure Composer 2.x
+        run: |
+          composer --version # Check Composer version
+          if [[ $(composer --version) =~ "1." ]]; then
+            composer self-update --2 # Force Composer 2.x if version 1.x is detected
+          fi
 
-      # Step 5: Install dependencies with optional parallel installation
+      # Step 4: Cache Composer dependencies (optional)
+      - name: Cache Composer Dependencies
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: ./bca/vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('./bca/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      # Step 5: Install dependencies (with parallel for Composer 2.x)
       - name: Install Dependencies
         working-directory: ./bca
-        run: composer install --no-ansi --no-interaction --prefer-dist --optimize-autoloader --no-scripts --parallel
+        run: |
+          if composer --version | grep -q 'Composer 2'; then
+            composer install --no-ansi --no-interaction --prefer-dist --optimize-autoloader --no-scripts --parallel
+          else
+            composer install --no-ansi --no-interaction --prefer-dist --optimize-autoloader --no-scripts
 
       # Step 6: Generate application key
       - name: Generate Application Key
