@@ -57,6 +57,7 @@ jobs:
 
       # Step 5: Install dependencies (with parallel for Composer 2.x)
       - name: Install Dependencies
+        working-directory: ./bca
         run: composer install --no-ansi --no-interaction --prefer-dist
 
       # Step 6: Generate application key
