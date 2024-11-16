@@ -37,21 +37,20 @@ jobs:
           extensions: mbstring, pdo, pdo_mysql, pdo_sqlite, bcmath, fileinfo, openssl
           tools: composer
 
-      # Step 4: Cache Composer packages
-      - name: Cache Composer Dependencies
-        id: composer-cache
-        uses: actions/cache@v3
-        with:
-          path: ./bca/vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('./bca/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-
+      # Step 4: Skip Composer cache if it's slowing down
+      # - name: Cache Composer Dependencies
+      #   id: composer-cache
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ./bca/vendor
+      #     key: ${{ runner.os }}-php-${{ hashFiles('./bca/composer.lock') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-php-
 
-
-      # Step 5: Install dependencies
+      # Step 5: Install dependencies with optional parallel installation
       - name: Install Dependencies
         working-directory: ./bca
-        run: composer install --no-ansi --no-interaction --prefer-dist
+        run: composer install --no-ansi --no-interaction --prefer-dist --optimize-autoloader --no-scripts --parallel
 
       # Step 6: Generate application key
       - name: Generate Application Key
@@ -77,4 +76,3 @@ jobs:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
         run: php artisan test
-
