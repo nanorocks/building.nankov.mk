@@ -19,14 +19,14 @@ jobs:
 
       # Step 2: Set up the environment file
       - name: Set up .env file
-        working-directory: ./api
+        working-directory: ./bca
         run: |
           if [ -f .env.example ]; then
             cp .env.example .env
           else
             echo "APP_KEY=" > .env
             echo "DB_CONNECTION=sqlite" >> .env
-            echo "DB_DATABASE=/path/to/api/database/database.sqlite" >> .env
+            echo "DB_DATABASE=$(pwd)/database/database.sqlite" >> .env
           fi
 
       # Step 3: Set up PHP and required extensions
@@ -42,36 +42,36 @@ jobs:
         id: composer-cache
         uses: actions/cache@v3
         with:
-          path: api/vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('api/composer.lock') }}
+          path: bca/vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('bca/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-php-
 
       # Step 5: Install dependencies
       - name: Install Dependencies
-        working-directory: ./api
+        working-directory: ./bca
         run: composer install --no-ansi --no-interaction --prefer-dist
 
       # Step 6: Generate application key
       - name: Generate Application Key
-        working-directory: ./api
+        working-directory: ./bca
         run: php artisan key:generate
 
       # Step 7: Set up the SQLite database
       - name: Set up SQLite Database
-        working-directory: ./api
+        working-directory: ./bca
         run: |
           mkdir -p database
           touch database/database.sqlite
 
       # Step 8: Run database migrations
       - name: Run Migrations
-        working-directory: ./api
+        working-directory: ./bca
         run: php artisan migrate --force
 
       # Step 9: Run Laravel Tests
       - name: Run Tests
-        working-directory: ./api
+        working-directory: ./bca
         env:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
