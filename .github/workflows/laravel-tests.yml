@@ -21,8 +21,8 @@ jobs:
       - name: Set up .env file
         working-directory: ./api
         run: |
-          if [ -f .env.testing ]; then
-            cp .env.testing .env
+          if [ -f .env.example ]; then
+            cp .env.example .env
           else
             echo "APP_KEY=" > .env
             echo "DB_CONNECTION=sqlite" >> .env
