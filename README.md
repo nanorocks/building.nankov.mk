@@ -18,3 +18,9 @@
 - Documentation.
 - CI/CD -> GitHub Action, CPanel deployment
 - PHPStan
+
+### Commands
+
+- ./vendor/bin/sail up -d
+- ./vendor/bin/sail down
+- vendor/bin/phpstan analyse app tests
