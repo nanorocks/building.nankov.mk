@@ -5,63 +5,43 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Base\Controller;
 use App\Http\Requests\StoreComplexRequest;
 use App\Http\Requests\UpdateComplexRequest;
+use App\Http\Resources\AllResourse;
+use App\Http\Resources\CreateResource;
+use App\Http\Resources\DeleteResource;
+use App\Http\Resources\SingleResource;
+use App\Http\Resources\UpdateResource;
 use App\Models\Complex;
+use App\Services\Interfaces\IComplexService;
 
 class ComplexController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+    public function __construct(private IComplexService $complexService)
     {
-        //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    public function all()
+    {
+        return new AllResourse($this->complexService->all());
+    }
+
+    public function single()
+    {
+        return new SingleResource($this->complexService->single());
+    }
+
     public function create()
     {
-        //
+        return new CreateResource($this->complexService->create());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreComplexRequest $request)
+    public function update()
     {
-        //
+        return new UpdateResource($this->complexService->update());
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Complex $complex)
+    public function delete()
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Complex $complex)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateComplexRequest $request, Complex $complex)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Complex $complex)
-    {
-        //
+        return new DeleteResource($this->complexService->delete());
     }
 }

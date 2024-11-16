@@ -5,63 +5,43 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Base\Controller;
 use App\Http\Requests\StoreBuildingRequest;
 use App\Http\Requests\UpdateBuildingRequest;
+use App\Http\Resources\AllResourse;
+use App\Http\Resources\CreateResource;
+use App\Http\Resources\DeleteResource;
+use App\Http\Resources\SingleResource;
+use App\Http\Resources\UpdateResource;
 use App\Models\Building;
+use App\Services\Interfaces\IBuildingService;
 
 class BuildingController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+    public function __construct(private IBuildingService $buildingService)
     {
-        //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    public function all()
+    {
+        return new AllResourse($this->buildingService->all());
+    }
+
+    public function single()
+    {
+        return new SingleResource($this->buildingService->single());
+    }
+
     public function create()
     {
-        //
+        return new CreateResource($this->buildingService->create());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreBuildingRequest $request)
+    public function update()
     {
-        //
+        return new UpdateResource($this->buildingService->update());
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Building $building)
+    public function delete()
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Building $building)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateBuildingRequest $request, Building $building)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Building $building)
-    {
-        //
+        return new DeleteResource($this->buildingService->delete());
     }
 }
