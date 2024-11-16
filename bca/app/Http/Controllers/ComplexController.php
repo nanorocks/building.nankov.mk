@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Base\Controller;
 use App\Http\Requests\StoreComplexRequest;
 use App\Http\Requests\UpdateComplexRequest;
 use App\Models\Complex;
