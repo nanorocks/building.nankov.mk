@@ -1,4 +1,4 @@
-name: Laravel API in bca Folder
+name: Laravel Tests
 
 on:
   push:
@@ -6,60 +6,81 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: read
+
 jobs:
   laravel-tests:
-
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Set up PHP environment
-    - name: Set up PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.0'
-        tools: composer # Ensure Composer is installed
+      # Step 1: Checkout the code
+      - uses: actions/checkout@v4
 
-    # Step 2: Check out the repository
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      # Step 2: Set up the environment file
+      - name: Set up .env file
+        working-directory: ./bca
+        run: |
+          if [ -f .env.example ]; then
+            cp .env.example .env
+          else
+            echo "APP_KEY=" > .env
+            echo "DB_CONNECTION=sqlite" >> .env
+            echo "DB_DATABASE=$(pwd)/database/database.sqlite" >> .env
+          fi
 
-    # Step 3: Navigate to the `bca` folder
-    - name: Set working directory
-      working-directory: ./bca
-      run: echo "Working directory set to $(pwd)"
+      # Step 3: Set up PHP and Composer (Ensure Composer 2.x is used)
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo, pdo_mysql, pdo_sqlite, bcmath, fileinfo, openssl
+          tools: composer
 
-    # Step 4: Set up the environment file
-    - name: Set up environment file
-      run: |
-        if [ ! -f .env ]; then
-          cp .env.example .env
-        fi
+      # Ensure Composer 2.x is used
+      - name: Ensure Composer 2.x
+        run: |
+          composer --version # Check Composer version
+          if [[ $(composer --version) =~ "1." ]]; then
+            composer self-update --2 # Force Composer 2.x if version 1.x is detected
+          fi
 
-    # Step 5: Install dependencies
-    - name: Install Dependencies
-      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      # Step 4: Cache Composer dependencies (optional)
+      - name: Cache Composer Dependencies
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: ./bca/vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('./bca/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
 
-    # Step 6: Generate application key
-    - name: Generate Application Key
-      run: php artisan key:generate
+      # Step 5: Install dependencies (with parallel for Composer 2.x)
+      - name: Install Dependencies
+        working-directory: ./bca
+        run: composer install --no-ansi --no-interaction --prefer-dist
 
-    # Step 7: Set directory permissions
-    - name: Set Directory Permissions
-      run: chmod -R 777 storage bootstrap/cache
+      # Step 6: Generate application key
+      - name: Generate Application Key
+        working-directory: ./bca
+        run: php artisan key:generate
 
-    # Step 8: Create SQLite database
-    - name: Create SQLite Database
-      run: |
-        mkdir -p database
-        touch database/database.sqlite
+      # Step 7: Set up the SQLite database
+      - name: Set up SQLite Database
+        working-directory: ./bca
+        run: |
+          mkdir -p database
+          touch database/database.sqlite
 
-    # Step 9: Run migrations
-    - name: Run Migrations
-      run: php artisan migrate --force
+      # Step 8: Run database migrations
+      - name: Run Migrations
+        working-directory: ./bca
+        run: php artisan migrate --force
 
-    # Step 10: Run tests
-    - name: Run Tests
-      env:
-        DB_CONNECTION: sqlite
-        DB_DATABASE: database/database.sqlite
-      run: php artisan test
+      # Step 9: Run Laravel Tests
+      - name: Run Tests
+        working-directory: ./bca
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite
+        run: php artisan test
