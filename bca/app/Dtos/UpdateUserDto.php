@@ -2,7 +2,7 @@
 
 namespace App\Dtos;
 
-class ApartmentDto
+class UpdateUserDto
 {
 
 }

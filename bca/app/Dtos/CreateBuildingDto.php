@@ -2,7 +2,7 @@
 
 namespace App\Dtos;
 
-class UserDto
+class CreateBuildingDto
 {
 
 }

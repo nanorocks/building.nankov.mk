@@ -38,7 +38,6 @@ class User extends Authenticatable
         self::PASSWORD,
         self::ROLES,
         self::SLUG
-
     ];
 
     /**
@@ -50,6 +49,10 @@ class User extends Authenticatable
         self::PASSWORD,
         self::REMEMBER_TOKEN,
     ];
+
+    public static function where(string $SLUG, string $slug)
+    {
+    }
 
     /**
      * Get the attributes that should be cast.

@@ -2,7 +2,7 @@
 
 namespace App\Dtos;
 
-class ComplexDto
+class CreateComplexDto
 {
 
 }

@@ -2,7 +2,7 @@
 
 namespace App\Dtos;
 
-class FloorDto
+class CreateApartmentDto
 {
 
 }

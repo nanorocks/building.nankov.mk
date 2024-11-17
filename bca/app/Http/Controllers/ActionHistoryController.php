@@ -17,7 +17,6 @@ class ActionHistoryController extends Controller
     {
     }
 
-
     public function all()
     {
         return new AllResourse($this->actionHistoryService->all());
