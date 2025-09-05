@@ -50,10 +50,6 @@ class User extends Authenticatable
         self::REMEMBER_TOKEN,
     ];
 
-    public static function where(string $SLUG, string $slug)
-    {
-    }
-
     /**
      * Get the attributes that should be cast.
      *

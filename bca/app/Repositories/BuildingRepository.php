@@ -16,7 +16,7 @@ class BuildingRepository implements IBuildingRepository
 
     public function all(): LengthAwarePaginator
     {
-        return Building::all()->partition(10);
+        return Building::paginate(10);
     }
 
     public function single(string $slug): Building
@@ -26,12 +26,38 @@ class BuildingRepository implements IBuildingRepository
 
     public function create(CreateBuildingDto $dto): Building
     {
-        // TODO: Implement create() method.
+        return Building::create([
+            Building::NAME => $dto->name,
+            Building::SLUG => $dto->slug,
+            Building::LOCATION => $dto->location,
+            Building::TOTAL_FLOORS => $dto->totalFloors,
+            Building::R_COMPLEX_ID => $dto->complexId,
+            Building::PHOTO => $dto->photo,
+        ]);
     }
 
     public function update(UpdateBuildingDto $dto, string $slug): Building
     {
-        // TODO: Implement update() method.
+        try {
+            $building = Building::where(Building::SLUG, $slug)->firstOrFail();
+
+            $updateData = array_filter([
+                Building::NAME => $dto->name,
+                Building::SLUG => $dto->slug,
+                Building::LOCATION => $dto->location,
+                Building::TOTAL_FLOORS => $dto->totalFloors,
+                Building::R_COMPLEX_ID => $dto->complexId,
+                Building::PHOTO => $dto->photo,
+            ], fn($value) => $value !== null);
+
+            $building->update($updateData);
+
+            return $building->fresh();
+        } catch (ModelNotFoundException $e) {
+            throw new BadRequestException("Building with slug {$slug} not found.");
+        } catch (\Exception $e) {
+            throw new BadRequestException('An unexpected error occurred while updating the building.');
+        }
     }
 
     public function delete(string $slug): Building

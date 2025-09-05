@@ -15,7 +15,7 @@ class FloorRepository implements IFloorRepository
 
     public function all(): LengthAwarePaginator
     {
-        return Floor::all()->partition(10);
+        return Floor::paginate(10);
     }
 
     public function single(string $slug): Floor
@@ -25,12 +25,36 @@ class FloorRepository implements IFloorRepository
 
     public function create(CreateFloorDto $dto): Floor
     {
-        // TODO: Implement create() method.
+        return Floor::create([
+            Floor::SLUG => $dto->slug,
+            Floor::FLOOR_NUM => $dto->floorNum,
+            Floor::TOTAL_APARTMENTS => $dto->totalApartments,
+            Floor::R_BUILDING_ID => $dto->buildingId,
+            Floor::PHOTO => $dto->photo,
+        ]);
     }
 
     public function update(UpdateFloorDto $dto, string $slug): Floor
     {
-        // TODO: Implement update() method.
+        try {
+            $floor = Floor::where(Floor::SLUG, $slug)->firstOrFail();
+
+            $updateData = array_filter([
+                Floor::SLUG => $dto->slug,
+                Floor::FLOOR_NUM => $dto->floorNum,
+                Floor::TOTAL_APARTMENTS => $dto->totalApartments,
+                Floor::R_BUILDING_ID => $dto->buildingId,
+                Floor::PHOTO => $dto->photo,
+            ], fn($value) => $value !== null);
+
+            $floor->update($updateData);
+
+            return $floor->fresh();
+        } catch (ModelNotFoundException $e) {
+            throw new BadRequestException("Floor with slug {$slug} not found.");
+        } catch (\Exception $e) {
+            throw new BadRequestException('An unexpected error occurred while updating the floor.');
+        }
     }
 
     public function delete(string $slug): Floor
