@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Apartment extends Model
 {
@@ -38,4 +39,12 @@ class Apartment extends Model
         self::PHOTO,
         self::R_FLOOR_ID
     ];
+
+    /**
+     * Get the floor that owns this apartment.
+     */
+    public function floor(): BelongsTo
+    {
+        return $this->belongsTo(Floor::class, self::R_FLOOR_ID);
+    }
 }

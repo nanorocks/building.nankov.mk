@@ -58,7 +58,14 @@ class DIServiceProvider extends ServiceProvider
      */
     protected function getInterfaceForClass(string $class, string $interfaceFolder)
     {
-        $interface = 'App\\' . $interfaceFolder . '\\' . 'I' . class_basename($class);
+        // For repositories, interfaces are in App\Repositories\Interfaces\
+        if (str_contains($class, 'Repositories')) {
+            $interface = 'App\\Repositories\\' . $interfaceFolder . '\\' . 'I' . class_basename($class);
+        } else {
+            // For other classes like Services
+            $interface = 'App\\' . $interfaceFolder . '\\' . 'I' . class_basename($class);
+        }
+        
         return interface_exists($interface) ? $interface : null;
     }
 
@@ -70,10 +77,10 @@ class DIServiceProvider extends ServiceProvider
      */
     protected function getClassFromFile($file): string
     {
-        $namespace = 'App\\';
+        $namespace = 'App';
         $relativePath = Str::replaceFirst(app_path(''), '', $file->getRealPath());
-        $className = Str::replace(['/', '.php'], ['\\', ''], $relativePath);
+        $className = Str::replace(['/', '.php'], ['\\', ''], ltrim($relativePath, '/'));
 
-        return $namespace . $className;
+        return $namespace . '\\' . $className;
     }
 }

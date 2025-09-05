@@ -15,7 +15,7 @@ class ComplexRepository implements IComplexRepository
 
     public function all(): LengthAwarePaginator
     {
-        return Complex::all()->partition(10);
+        return Complex::paginate(10);
     }
 
     public function single(string $slug): Complex
@@ -25,12 +25,34 @@ class ComplexRepository implements IComplexRepository
 
     public function create(CreateComplexDto $dto): Complex
     {
-        // TODO: Implement create() method.
+        return Complex::create([
+            Complex::NAME => $dto->name,
+            Complex::SLUG => $dto->slug,
+            Complex::LOCATION => $dto->location,
+            Complex::PHOTO => $dto->photo,
+        ]);
     }
 
     public function update(UpdateComplexDto $dto, string $slug): Complex
     {
-        // TODO: Implement update() method.
+        try {
+            $complex = Complex::where(Complex::SLUG, $slug)->firstOrFail();
+
+            $updateData = array_filter([
+                Complex::NAME => $dto->name,
+                Complex::SLUG => $dto->slug,
+                Complex::LOCATION => $dto->location,
+                Complex::PHOTO => $dto->photo,
+            ], fn($value) => $value !== null);
+
+            $complex->update($updateData);
+
+            return $complex->fresh();
+        } catch (ModelNotFoundException $e) {
+            throw new BadRequestException("Complex with slug {$slug} not found.");
+        } catch (\Exception $e) {
+            throw new BadRequestException('An unexpected error occurred while updating the complex.');
+        }
     }
 
     public function delete(string $slug): Complex

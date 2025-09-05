@@ -16,7 +16,7 @@ class ApartmentRepository implements IApartmentRepository
 
     public function all(): LengthAwarePaginator
     {
-        return Apartment::all()->partition(10);
+        return Apartment::paginate(10);
     }
 
     public function single(string $slug): Apartment
@@ -26,12 +26,46 @@ class ApartmentRepository implements IApartmentRepository
 
     public function create(CreateApartmentDto $dto): Apartment
     {
-        // TODO: Implement create() method.
+        return Apartment::create([
+            Apartment::TYPE => $dto->type,
+            Apartment::SLUG => $dto->slug,
+            Apartment::OWNER => $dto->owner,
+            Apartment::STATUS => $dto->status,
+            Apartment::PRICE => $dto->price,
+            Apartment::DATE_COMPLETED => $dto->dateCompleted,
+            Apartment::TERMS => $dto->terms,
+            Apartment::DESCRIPTION => $dto->description,
+            Apartment::R_FLOOR_ID => $dto->floorId,
+            Apartment::PHOTO => $dto->photo,
+        ]);
     }
 
     public function update(UpdateApartmentDto $dto, string $slug): Apartment
     {
-        // TODO: Implement update() method.
+        try {
+            $apartment = Apartment::where(Apartment::SLUG, $slug)->firstOrFail();
+
+            $updateData = array_filter([
+                Apartment::TYPE => $dto->type,
+                Apartment::SLUG => $dto->slug,
+                Apartment::OWNER => $dto->owner,
+                Apartment::STATUS => $dto->status,
+                Apartment::PRICE => $dto->price,
+                Apartment::DATE_COMPLETED => $dto->dateCompleted,
+                Apartment::TERMS => $dto->terms,
+                Apartment::DESCRIPTION => $dto->description,
+                Apartment::R_FLOOR_ID => $dto->floorId,
+                Apartment::PHOTO => $dto->photo,
+            ], fn($value) => $value !== null);
+
+            $apartment->update($updateData);
+
+            return $apartment->fresh();
+        } catch (ModelNotFoundException $e) {
+            throw new BadRequestException("Apartment with slug {$slug} not found.");
+        } catch (\Exception $e) {
+            throw new BadRequestException('An unexpected error occurred while updating the apartment.');
+        }
     }
 
     public function delete(string $slug): Apartment

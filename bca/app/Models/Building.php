@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Building extends Model
 {
@@ -29,4 +31,20 @@ class Building extends Model
         self::TOTAL_FLOORS,
         self::R_COMPLEX_ID,
     ];
+
+    /**
+     * Get the complex that owns this building.
+     */
+    public function complex(): BelongsTo
+    {
+        return $this->belongsTo(Complex::class, self::R_COMPLEX_ID);
+    }
+
+    /**
+     * Get all floors for this building.
+     */
+    public function floors(): HasMany
+    {
+        return $this->hasMany(Floor::class, Floor::R_BUILDING_ID);
+    }
 }
